@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": "sqs:SendMessage",
+      "Resource": "$PENDING_WEBHOOK_QUEUE_ARN",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "$SNS_TOPIC_ARN"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ping: 1})"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  localstack:
+    build:
+      context: .
+      dockerfile: ./docker/localstack.Dockerfile
+    container_name: localstack
+    ports:
+      - "4566:4566"        # LocalStack general edge port
+      - "4510-4559:4510-4559" # Additional service ports
+    environment:
+      # Enable only SQS and SNS for lower resource usage
+      SERVICES: sqs,sns
+      # Set the host for the service to be accessible inside the container
+      DEFAULT_REGION: us-east-1
+      # Log level for debugging
+      DEBUG: 1
+
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    container_name: payment-processor-app
+    ports:
+      - "8080:8080"
+    environment:
+      # Use the container names for inter-service communication
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/paymentdb
+      CLOUD_AWS_SQS_ENDPOINT: http://localstack:4566
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  mongodb_data:

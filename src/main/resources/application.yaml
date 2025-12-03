@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ezyCollect
+
+  data:
+    mongodb:
+      uri: mongodb://mongodb:27017/paymentdb
+
+  # Webservices Configuration
+  web:
+    # Use WebClient for async webhook calls
+    client:
+      codec-max-in-memory-size: 16MB
+
+# Encryption Key (32-byte AES-256 key, Base64 encoded)
+encryption:
+  secret-key: "glQOK5Pf2YPZ7I0pVK1XNck3oW2hgEnv61kGjzlJNlA="
+
+# AWS SQS/SNS Configuration for LocalStack
+cloud:
+  aws:
+    sqs:
+      endpoint: http://localstack:4566
+      region: us-east-1
+
+sqs:
+  queue-webhook-url: 'queue_webhooks'
+  pending-webhook-url: 'pending_webhooks'
+
+sns:
+  payment-settled-topic-arn: 'arn:aws:sns:us-east-1:000000000000:payment_settled_topic'
+  payment-settled-topic: 'payment_settled_topic'
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    io.ezycollect: DEBUG

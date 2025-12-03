@@ -1,0 +1,181 @@
+openapi: 3.0.4
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /v1/webhooks/payment:
+    post:
+      tags:
+        - webhook-controller
+      operationId: newSubscriber
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookSubscriptionDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/Webhook"
+        "400":
+          description: Validation Error
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/webhooks/check:
+    post:
+      tags:
+        - webhook-controller
+      operationId: checkWebhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /v1/payment:
+    post:
+      tags:
+        - payment-controller
+      operationId: createPayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentRequestDTO"
+        required: true
+      responses:
+        "201":
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "400":
+          description: Validation Error
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    WebhookSubscriptionDTO:
+      type: object
+      properties:
+        targetUrl:
+          type: string
+          minLength: 10
+          example: https://example.com/webhook
+      required:
+        - targetUrl
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 69304dca60a24b011077c0b6
+        targetUrl:
+          type: string
+          example: https://example.com/webhook
+
+    PaymentRequestDTO:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          example: John
+        lastName:
+          type: string
+          minLength: 1
+          example: Doe
+        zipCode:
+          type: string
+          minLength: 1
+          pattern: "^\\d{4,5}(-\\d{3,4})?$"
+          example: 1345
+        cardNumber:
+          type: string
+          maxLength: 20
+          minLength: 16
+          pattern: "^((\\d{16})|(\\d{4}-\\d{4}-\\d{4}-\\d{4}))$"
+      required:
+        - cardNumber
+        - firstName
+        - lastName
+        - zipCode
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 69304dca60a24b011077c0b6
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        zipCode:
+          type: string
+          example: 1234-5678-9012-3456
+        cardNumberEncrypted:
+          type: string
+          example: OZci2y031Bre5Ra57KY1oooT3VlzPfhbLpvO0C9+KM13eCahevLBVxyCZXFSRWc=
+        maskedCardNumber:
+          type: string
+          example: '****-****-****-3456'
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-12-03T14:48:42.008655265Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2025-12-03T14:48:42.008655265Z
+
+    ErrorMessage:
+      type: object
+      properties:
+        field:
+          type: string
+          example: cardNumber
+        rejectedValue:
+          type: string
+          example: 1234-5678-1234
+        message:
+          type: string
+          example: 'Card number must be 16 digits without formatting or 20 digits with dashes'
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: datetime
+          example: 2025-12-03T16:02:56.232810719Z
+        status:
+          type: number
+          example: 400
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorMessage"
