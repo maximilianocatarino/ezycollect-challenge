@@ -38,7 +38,7 @@ Alternatively, you can run the application directly from the command line using 
 ```
 
 ## 🌐 API Endpoints
-The API is available at http://localhost:8080/v1. Refer to open-api.yaml for full documentation.
+The API is available at http://localhost:8080/v1. Refer to open-api.yaml for full documentation or http://localhost:8080/swagger-ui/index.html.
 
 ### 1. Register a Webhook
 Before creating a payment, register a webhook.
